@@ -1,4 +1,26 @@
+
+
+
+
+
 !(function(win){
+
+    function on(el, evt, callback){
+        el.addEventListener(evt, callback, false)
+    }
+
+    function off(el, evt, callback){
+        el.removeEventListener(evt, callback, false)
+    }
+
+    function qs(id, element){
+        var el = element || document;
+        return el.querySelector(id)
+    }
+    function qsa(id, element){ 
+        const el = element || document;
+        return el.querySelectorAll(id)
+    }
     var Picker = win.Picker = function(config){
         var defaultConfig = {
             title: '选择'
@@ -9,8 +31,6 @@
         this._renderPop()
         this._event()
     }   
-
-
     Picker.prototype = {
         constructor: Picker,
         _renderPop: function(){
@@ -46,6 +66,17 @@
                 this.picker.classList.add('show')
                 this.cover.classList.add('show')
             }.bind(this), 20)
+            for(var i = 0;i<2;i++){
+                var el = qsa('.picker-items-col')[i];
+                this._setOffset(el, 0)
+                this._listener(el, 0)
+            }
+        },
+        _setOffset(el, i, offsetNum){
+            qs('.picker-items-col-wrapper', el).style.cssText = "transform: translateY("+ 70 +"px)"
+        },
+        _listener(el, i, offsetNum){
+
         },
         _event: function(){
             this.cover.onclick = function(){
@@ -60,6 +91,7 @@
                 this.picker.remove()
             }.bind(this))
         }
+
 
     }
 
