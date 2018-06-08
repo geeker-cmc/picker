@@ -10,55 +10,14 @@
         <button class = 'test'>
             打开
         </button>
-
-        <div style="width: 100px; height: 500px; background-color: red;" id="wrap">
-
-            <div>1</div>
-            <div>122</div>
-            <div>12</div>
-            <div>额1</div>
-            <div>1呃呃呃</div>
-            <div>1对对对</div>
-            <div>1的点点滴滴</div>
-            <div>1的点滴滴</div>
-            <div>1的点点滴滴</div>
-            <div>1的点</div>
-            <div>1问问</div>
-            <div>问问1</div>
-        </div>
     </body>
     <script type="text/javascript" src="./index.js"></script>
+    <script type="text/javascript" src="./data.js"></script>
     <script type="text/javascript">
         document.querySelector('.test').onclick = function(){
-           var picker = new Picker()
+           var picker = new Picker({
+               data: data
+           })
         }
-        
-        
-        var wrap = document.querySelector('#wrap')
-        var startmove = 0; touchmoved = 0; endmove = 0;
-        
-        function touchstartHandle(e){
-            var touchstartY = e.changedTouches[0].pageY;
-            startmove = touchstartY;
-
-        }
-        function touchmoveHandle(e){
-            var touchend = e.changedTouches[0].pageY;
-            var offsetNum = startmove - touchend + touchmoved;
-            setTranslate(offsetNum)
-        }
-        function touchendHandle(e){
-            var toucheEndY = e.changedTouches[0].pageY;
-            var touchChangedY = startmove - toucheEndY + touchmoved;
-            touchmoved = touchChangedY;
-
-        }
-        function setTranslate(offsetNum){
-            document.querySelector('#wrap').style.cssText = "transform: translateY("+ (-offsetNum) +"px);width: 100px; height: 500px; background-color: red;"
-        }
-        wrap.addEventListener('touchstart', touchstartHandle);
-        wrap.addEventListener('touchmove', touchmoveHandle)
-        wrap.addEventListener('touchend', touchendHandle)
-
     </script>
 </html>

@@ -48,7 +48,9 @@ html,body{
 }
 .pop{
     background: green;
-    flex: 1;
+    /* flex: 1; */
+    height: 260px;
+    overflow: hidden;
 }
 .content{
     height: 100%;

@@ -23,12 +23,26 @@
         var config = Object.assign({}, defaultConfig, config);
         this.title = config.title;
         this.height = config.itemHeight || 40;
+        this.data = config.data;
         this._renderPop()
         this._event()
     }   
     Picker.prototype = {
         constructor: Picker,
+        _renderCol: function(data){
+            var wrap = '';
+            data.forEach(function(item, index){
+                var items = '';
+                item.forEach(function(_item){
+                    console.log(_item);
+                    items += '<div class="picker-item">' + _item.label + '</div>' 
+                })
+                wrap += '<div class="picker-items-col"><div class="picker-items-col-wrapper">' + items + '</div></div>';
+            })
+            return wrap
+        },
         _renderPop: function(){
+             var col = this._renderCol(this.data)
              this.picker = document.createElement('div'),
              this.cover = document.createElement('div');
              this.cover.className = "cover"
@@ -40,18 +54,7 @@
                                       </div>\
                                     <div class="pop">\
                                         <div class="content">\
-                                            <div class="picker-items-col">\
-                                                <div class="picker-items-col-wrapper">\
-                                                    <div class="picker-item">蔡明超</div>\
-                                                    <div class="picker-item">王伟</div>\
-                                                </div>\
-                                            </div>\
-                                            <div class="picker-items-col">\
-                                                <div class="picker-items-col-wrapper">\
-                                                    <div class="picker-item">22</div>\
-                                                    <div class="picker-item">99</div>\
-                                                </div>\
-                                            </div>\
+                                            '+ col +'\
                                         </div>\
                                         <div class="top"></div>\
                                         <div class="bottom"></div>\
@@ -80,24 +83,61 @@
                     thisIndex = i; //第几个col 绑定
                     lastMoveTime = Date.now(); //最后触摸的事件
                     lastMoveStart = touchStartY; // 
+                    stopInertiaMove = true;
             }
             function touchmoveHandle(e){
                 e.preventDefault();
                 var touchMoveY = e.touches[0].pageY, //移动后的
-                    _touchMovedY = touchStartY - touchMoveY + touchMovedY; //开始的位移
+                    _touchMovedY = touchStartY - touchMoveY + touchMovedY; //这个是记录滚轮在起始位子的位移
+
+                    if(_touchMovedY < 0){
+                        _touchMovedY = 0;
+                    }
+
+                    if(_touchMovedY > this.height * 18){
+                        _touchMovedY = this.height * 18 - this.height;
+                    }
+
+                stopInertiaMove = true;
                 this._setOffset(el, thisIndex, _touchMovedY);
                 var nowTime = Date.now();
                 if(nowTime - lastMoveTime > 300){
                     lastMoveTime = nowTime;
                     lastMoveStart = touchMoveY; //最后位移记录
                 }
+
                 
             }
             function touchendHandle(e){
                 var toucheEndY = e.changedTouches[0].pageY; //
                 var touchChangedY = touchStartY - toucheEndY + touchMovedY;
-                touchMovedY = touchChangedY;
-                var nowDate = Date.now();
+                touchMovedY = (touchChangedY % this.height > this.height /2 ? Math.ceil(touchChangedY / this.height) : Math.floor(touchChangedY / this.height)) * this.height;
+
+                if(touchMovedY < 0){
+                    touchMovedY = 0;
+                    this._setOffset(el, thisIndex, touchMovedY);
+                    return
+                }
+                if(touchMovedY > this.height * 18){
+                    touchMovedY = this.height * 18;
+                    return
+                }
+                this._setOffset(el, thisIndex, touchMovedY);
+                var nowDate = Date.now(); //滑动结束的时间
+                var v = (toucheEndY - lastMoveStart) / (nowDate - lastMoveTime);//初始速度
+                stopInertiaMove = true;
+                var dir = v > 0? -1: 1; 
+                var deceleration = dir * 0.01;
+                var duration = v / deceleration;
+                var dist = v * duration / 2;
+
+                function inertiaMove(){
+                    if(stopInertiaMove){
+                        return
+                    }
+
+                }
+
                 
                 
             }
