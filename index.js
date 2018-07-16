@@ -106,6 +106,9 @@
                 this._setOffset(el, thisIndex, _touchMovedY);
                 var nowTime = Date.now();
                 if(nowTime - lastMoveTime > 300){
+
+
+                    
                     lastMoveTime = nowTime;
                     lastMoveStart = touchMoveY; //最后位移记录
                 }
