@@ -22,7 +22,7 @@
         }
         var config = Object.assign({}, defaultConfig, config);
         this.title = config.title;
-        this.height = config.itemHeight || 40;
+        this.height = config.itemHeight || 40;//每一个的高度 
         this.data = config.data;
         this._renderPop()
         this._event()
@@ -34,7 +34,6 @@
             data.forEach(function(item, index){
                 var items = '';
                 item.forEach(function(_item){
-                    console.log(_item);
                     items += '<div class="picker-item">' + _item.label + '</div>' 
                 })
                 wrap += '<div class="picker-items-col"><div class="picker-items-col-wrapper">' + items + '</div></div>';
@@ -78,6 +77,9 @@
         _listener(el, i, offsetNum){//第三个参数为Y轴的位移
             var touchStartY = 0, touchMovedY = offsetNum, thisIndex = 0;
             var lastMoveTime = 0, lastMoveStart = 0, stopInertiaMove = false;
+            
+
+            //触摸事件开始
             function touchstartHandle(e){
                     touchStartY = e.touches[0].pageY;  //开始触摸的Y轴
                     thisIndex = i; //第几个col 绑定
@@ -85,6 +87,8 @@
                     lastMoveStart = touchStartY; // 
                     stopInertiaMove = true;
             }
+
+            //移动事件开始
             function touchmoveHandle(e){
                 e.preventDefault();
                 var touchMoveY = e.touches[0].pageY, //移动后的
@@ -108,18 +112,27 @@
 
                 
             }
+
+            //触摸结束
             function touchendHandle(e){
                 var toucheEndY = e.changedTouches[0].pageY; //
                 var touchChangedY = touchStartY - toucheEndY + touchMovedY;
                 touchMovedY = (touchChangedY % this.height > this.height /2 ? Math.ceil(touchChangedY / this.height) : Math.floor(touchChangedY / this.height)) * this.height;
 
+                console.log(touchMovedY, '移动的距离》》》')
                 if(touchMovedY < 0){
                     touchMovedY = 0;
                     this._setOffset(el, thisIndex, touchMovedY);
                     return
                 }
-                if(touchMovedY > this.height * 18){
-                    touchMovedY = this.height * 18;
+                console.log(this.data[thisIndex], '长度》》')
+                console.log(touchMovedY, '移动距离')
+                console.log()
+                if(touchMovedY > this.height * this.data[thisIndex].length - this.height){
+                    touchMovedY = this.height * this.data[thisIndex].length - this.height;
+                    console.log(touchMovedY, '超过了最大距离')
+                    this._setOffset(el, thisIndex, touchMovedY);
+                
                     return
                 }
                 this._setOffset(el, thisIndex, touchMovedY);
