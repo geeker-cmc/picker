@@ -83,7 +83,7 @@
             function touchstartHandle(e){
                     touchStartY = e.touches[0].pageY;  //开始触摸的Y轴
                     thisIndex = i; //第几个col 绑定
-                    lastMoveTime = Date.now(); //最后触摸的事件
+                    lastMoveTime = Date.now(); //记录开始时间  主要为了做缓动动画
                     lastMoveStart = touchStartY; // 
                     stopInertiaMove = true;
             }
@@ -94,21 +94,21 @@
                 var touchMoveY = e.touches[0].pageY, //移动后的
                     _touchMovedY = touchStartY - touchMoveY + touchMovedY; //这个是记录滚轮在起始位子的位移
 
-                    if(_touchMovedY < 0){
-                        _touchMovedY = 0;
-                    }
+                    // if(_touchMovedY < 0){
+                    //     _touchMovedY = 0;
+                    // }
 
-                    if(_touchMovedY > this.height * 18){
-                        _touchMovedY = this.height * 18 - this.height;
-                    }
+                    // if(_touchMovedY > this.height * this.data[thisIndex].length){
+                    //     console.log('进入最大的位移move')
+                    //     _touchMovedY = this.height * this.data[thisIndex].length - this.height;
+                    //     console.log(_touchMovedY, '距离')
+                    // }
 
                 stopInertiaMove = true;
                 this._setOffset(el, thisIndex, _touchMovedY);
                 var nowTime = Date.now();
-                if(nowTime - lastMoveTime > 300){
-
-
-                    
+                if(nowTime - lastMoveTime > 300){ //
+                    console.log('超过了300毫秒')
                     lastMoveTime = nowTime;
                     lastMoveStart = touchMoveY; //最后位移记录
                 }
@@ -135,24 +135,37 @@
                     touchMovedY = this.height * this.data[thisIndex].length - this.height;
                     console.log(touchMovedY, '超过了最大距离')
                     this._setOffset(el, thisIndex, touchMovedY);
-                
                     return
                 }
                 this._setOffset(el, thisIndex, touchMovedY);
-                var nowDate = Date.now(); //滑动结束的时间
-                var v = (toucheEndY - lastMoveStart) / (nowDate - lastMoveTime);//初始速度
-                stopInertiaMove = true;
-                var dir = v > 0? -1: 1; 
+                var nowTime = Date.now();
+                var v = (toucheEndY - lastMoveStart) / (nowTime - lastMoveTime); // 滑动平均速度
+                stopInertiaMove = false;
+                var dir = v > 0 ? -1 : 1;
                 var deceleration = dir * 0.01;
                 var duration = v / deceleration;
                 var dist = v * duration / 2;
-
-                function inertiaMove(){
-                    if(stopInertiaMove){
-                        return
+                function inertiaMove () {
+                    if (stopInertiaMove) {
+                        return;
                     }
-
+                    if (Math.abs(dist) < 0.5) {
+                        touchMovedY = touchMovedY % this.height > this.height / 2 ? Math.ceil(touchMovedY / this.height) * this.height : Math.floor(touchMovedY / this.height) * this.height;
+                        this._setOffset(el, thisIndex, touchMovedY, true);
+                        return;
+                    }
+                    this._setOffset(el, thisIndex, touchMovedY + dist);
+                    dist /= 1.1;
+                    touchMovedY += dist;
+                    if (touchMovedY < 0) {
+                        touchMovedY = 0;
+                    }
+                    if (touchMovedY > this.data[thisIndex].length * this.height - this.height) {
+                        touchMovedY = this.data[thisIndex].length * this.height - this.height;
+                    }
+                    this._aniId = window.requestAnimationFrame(inertiaMove);
                 }
+                inertiaMove();
 
                 
                 
